@@ -1,0 +1,38 @@
+name: Update Profile README
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Set up git
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Clone llama.cpp
+        run: git clone --depth 100 https://github.com/ggerganov/llama.cpp temp-llama
+
+      - name: Generate co-authored commits list
+        run: |
+          cd temp-llama
+          git log --all --grep="Co-authored-by: Your Name <your-email@example.com>" --pretty=format:"- [%h](https://github.com/ggerganov/llama.cpp/commit/%H) %s" > ../contributions.md
+
+      - name: Update README
+        run: |
+          sed -i '/<!-- CONTRIBUTIONS-LIST START -->/,/<!-- CONTRIBUTIONS-LIST END -->/c\<!-- CONTRIBUTIONS-LIST START -->\n'"$(cat contributions.md)"'\n<!-- CONTRIBUTIONS-LIST END -->' README.md
+
+      - name: Commit and push
+        run: |
+          git add README.md
+          git commit -m "Update llama.cpp co-authored commits [skip ci]" || echo "No changes to commit"
+          git push

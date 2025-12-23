@@ -26,17 +26,14 @@ jobs:
 
       - name: Fetch co-authored commits from llama.cpp
         run: |
-          # Replace <username> with your GitHub username
-          # This example finds commits co-authored by you in llama.cpp
           mkdir -p tmp
           cd tmp
           git clone --depth=100 https://github.com/ggerganov/llama.cpp.git
           cd llama.cpp
-          git log --all --grep="Co-authored-by: Your Name <your_email@example.com>" \
+          git log --all --grep="Co-authored-by: rehan.qasim@10xengineers.ai" \
             --pretty=format:"* [%h](https://github.com/ggerganov/llama.cpp/commit/%H) %s" \
             > ../../COAUTHORED_COMMITS.md
           cd ../..
-          # Append to your README.md or replace section
           echo "## My llama.cpp Co-authored Commits" > README.md
           cat COAUTHORED_COMMITS.md >> README.md
 

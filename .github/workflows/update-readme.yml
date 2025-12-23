@@ -1,38 +1,47 @@
-name: Update Profile README
+name: Update GitHub Profile README
 
 on:
   schedule:
-    - cron: '0 0 * * 0' # weekly on Sunday
-  workflow_dispatch:
+    - cron: '0 0 * * *' # daily at midnight UTC
+  workflow_dispatch: # allows manual trigger
+
+permissions:
+  contents: write # allows pushing changes to the repo
 
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout this repo
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          fetch-depth: 0  # fetch full history to get all commits
 
-      - name: Set up git
+      - name: Set up Git
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
 
-      - name: Clone llama.cpp
-        run: git clone --depth 100 https://github.com/ggerganov/llama.cpp temp-llama
-
-      - name: Generate co-authored commits list
+      - name: Fetch co-authored commits from llama.cpp
         run: |
-          cd temp-llama
-          git log --all --grep="Co-authored-by: Your Name <your-email@example.com>" --pretty=format:"- [%h](https://github.com/ggerganov/llama.cpp/commit/%H) %s" > ../contributions.md
+          # Replace <username> with your GitHub username
+          # This example finds commits co-authored by you in llama.cpp
+          mkdir -p tmp
+          cd tmp
+          git clone --depth=100 https://github.com/ggerganov/llama.cpp.git
+          cd llama.cpp
+          git log --all --grep="Co-authored-by: Your Name <your_email@example.com>" \
+            --pretty=format:"* [%h](https://github.com/ggerganov/llama.cpp/commit/%H) %s" \
+            > ../../COAUTHORED_COMMITS.md
+          cd ../..
+          # Append to your README.md or replace section
+          echo "## My llama.cpp Co-authored Commits" > README.md
+          cat COAUTHORED_COMMITS.md >> README.md
 
-      - name: Update README
-        run: |
-          sed -i '/<!-- CONTRIBUTIONS-LIST START -->/,/<!-- CONTRIBUTIONS-LIST END -->/c\<!-- CONTRIBUTIONS-LIST START -->\n'"$(cat contributions.md)"'\n<!-- CONTRIBUTIONS-LIST END -->' README.md
-
-      - name: Commit and push
+      - name: Commit and push changes
         run: |
           git add README.md
           git commit -m "Update llama.cpp co-authored commits [skip ci]" || echo "No changes to commit"
-          git push
+          git push origin main

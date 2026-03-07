@@ -1,2 +1,1 @@
 ## My llama.cpp Co-authored Commits
-* [b908baf](https://github.com/ggerganov/llama.cpp/commit/b908baf1825b1a89afef87b09e22c32af2ca6548) ggml-cpu: add RVV vec dot kernels for quantization types (#18784)

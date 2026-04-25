@@ -1,2 +1,1 @@
 ## My llama.cpp Co-authored Commits
-* [1e796eb](https://github.com/ggerganov/llama.cpp/commit/1e796eb41fb51950ada45811a303e57a5f4ea974) ggml-cpu: add 128-bit RVV implementation for Quantization Vector Dot (#20633)

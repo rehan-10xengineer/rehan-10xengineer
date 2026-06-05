@@ -1,1 +1,2 @@
 ## My llama.cpp Co-authored Commits
+* [3c7450c](https://github.com/ggerganov/llama.cpp/commit/3c7450cee1335eef6f8091fa0498e875249e5595) ggml-cpu: extend RVV quantization vec dot to higher VLENs (#22754)
